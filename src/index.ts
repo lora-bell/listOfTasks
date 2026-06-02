@@ -89,16 +89,15 @@ function checkForm(event: Event): void{
             fillingError.remove()
             addRow(table, [lastName, name, task, status])
             form.reset()
-    }else{        
-        fillingError.innerText = "Чтобы добавить запись заполните все поля"
-        fillingError.style.margin = "10px"
-        fillingError.style.padding = "10px"        
-        fillingError.style.color = "red"          
+    }else{
         formSubmit.append(fillingError)
     }
 }
 
 const fillingError = document.createElement("span")
+fillingError.innerText = "Чтобы добавить запись заполните все поля"
+fillingError.classList.add("filling-error")
+
 form.addEventListener('submit',(event) => checkForm(event))
 
 const table = document.createElement("table")
@@ -108,7 +107,7 @@ addRow(table, ["Кузнецов", "Александр", "Алгоритмы", "
 
 const filterButton = document.createElement("button")
 filterButton.textContent = "Показать невыполненные задания"
-filterButton.style.margin = "5px"
+filterButton.classList.add("filter-button")
 
 function filterTable(filterButton: HTMLButtonElement): void{
     const completed = table.querySelectorAll(".row")

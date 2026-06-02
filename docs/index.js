@@ -76,14 +76,12 @@ function checkForm(event) {
         form.reset();
     }
     else {
-        fillingError.innerText = "Чтобы добавить запись заполните все поля";
-        fillingError.style.margin = "10px";
-        fillingError.style.padding = "10px";
-        fillingError.style.color = "red";
         formSubmit.append(fillingError);
     }
 }
 const fillingError = document.createElement("span");
+fillingError.innerText = "Чтобы добавить запись заполните все поля";
+fillingError.classList.add("filling-error");
 form.addEventListener('submit', (event) => checkForm(event));
 const table = document.createElement("table");
 addRow(table, ["Фамилия", "Имя", "Тема задания", "Статус"], "heading");
@@ -91,7 +89,7 @@ addRow(table, ["Иванов", "Иван", "Структуры данных", "�
 addRow(table, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"]);
 const filterButton = document.createElement("button");
 filterButton.textContent = "Показать невыполненные задания";
-filterButton.style.margin = "5px";
+filterButton.classList.add("filter-button");
 function filterTable(filterButton) {
     const completed = table.querySelectorAll(".row");
     completed.forEach(elem => {
