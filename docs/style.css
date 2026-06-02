@@ -1,0 +1,84 @@
+:root {
+  --border-color: rgb(160 160 160);
+  --hover-color: #D3D3D3;
+  --active-color: #A9A9A9;
+}
+
+#root {
+    font-size: 1.2rem;
+}
+
+label { 
+    display: block; 
+}
+
+form {
+  margin: 20px 5px 5px;
+  padding: 10px 10px 5px;
+  border: 1px dashed gold;
+}
+
+.field{
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+#status {
+  padding: 3px;
+}
+
+#form-submit {
+    margin: 10px 0;    
+}
+
+input{
+  padding: 5px;
+}
+
+input[type="submit" i]{  
+  background-color: green;
+  border-radius: 5px;
+}
+
+table {
+  margin: 10px 5px;
+  border-collapse: collapse;
+  border: 1px solid var(--border-color);
+  text-align: left;  
+}
+
+th {  
+  border-right: 1px solid var(--border-color);
+  padding: 10px;
+}
+
+.heading {
+  border-bottom: 1px solid var(--border-color);
+  font-size: 18;
+}
+
+.row {
+  font-size: 15;  
+}
+
+.row:hover {
+  background-color: var(--hover-color);
+}
+
+.active {
+  background-color: var(--active-color); 
+}
+
+button {
+  border: 1px solid;
+  border-radius: 9px;
+  margin: 20px;
+  padding: 5px;
+}
+
+.invisible {
+  display: none;
+}
+
