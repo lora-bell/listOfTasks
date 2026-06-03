@@ -20,7 +20,56 @@ function addRow(table: HTMLTableElement, array: string[], name: string = "row"):
 
 const root = document.querySelector("#root") as HTMLElement
 
-const form = document.createElement("form")
+// Инструкция с аккордеоном
+
+const accordion: HTMLDivElement = document.createElement("div")
+accordion.classList.add("accordion")
+const accordionHeader: HTMLDivElement = document.createElement("div")
+accordionHeader.classList.add("accordion-header")
+accordionHeader.textContent = "Инструкция к таблице"
+const accordionSpan: HTMLSpanElement = document.createElement("span")
+accordionSpan.classList.add("accordion-span")
+accordionSpan.textContent = "▽" // ˅ ˄ ▽ △
+accordionHeader.append(accordionSpan)
+accordion.append(accordionHeader)
+
+const accordionContent: HTMLDivElement = document.createElement("div")
+accordionContent.classList.add("accordion-content")
+accordionContent.innerHTML = `
+    <h3>Добавление записей</h3>
+    <p>При заполнении всех полей и нажатии кнопки "Добавить" - новая строка появляется в таблице.</p>
+    <p>Если поля не заполнены - показывается сообщение об ошибке: "Чтобы добавить запись заполните все поля".</p>
+
+    <h3>Взаимодействие со строками</h3>
+    <p>При наведении на строку - вся строка меняет фон на серый.</p>
+    <p>При клике по строке - строка меняет фон на тёмно-серый.</p>
+    <p>При двойном клике по строке - запись удаляется из таблицы.</p>
+
+    <h3>Фильтрация</h3>
+    <p>Строки в таблице можно фильтровать с помощью кнопки "Показать невыполненные/все задания".</p>
+    <p>Режимы работы кнопки:</p>
+    <ul>
+        <li>Когда на кнопке написано "Показать невыполненные задания" - при нажатии из таблицы скрываются записи с выполненными заданиями.</li>
+        <li>Когда на кнопке написано "Показать все задания" - при нажатии все скрытые записи возвращаются обратно в таблицу.</li>
+    </ul>
+`
+
+function openAccordion(): void{
+    accordion.classList.toggle("open-accordion")
+    if(accordion.classList.contains("open-accordion")){
+        accordionSpan.textContent = "△"
+        accordion.append(accordionContent)
+    }else{
+        accordionSpan.textContent = "▽"
+        accordionContent.remove()
+    }    
+}
+
+accordion.addEventListener("click", () => openAccordion())
+
+// Форма для заполнения записи в таблице
+
+const form: HTMLFormElement = document.createElement("form")
 
 const persons: {title: string, text: string}[] = [
     {title: "lastName", text: "Фамилия"},
@@ -42,7 +91,7 @@ for(const person of persons){
     form.append(field)
 }
 
-const formStatus = document.createElement("select")
+const formStatus: HTMLSelectElement = document.createElement("select")
 formStatus.setAttribute("type", "text")
 formStatus.setAttribute("name", "status")
 formStatus.setAttribute("id", "status")
@@ -94,22 +143,24 @@ function checkForm(event: Event): void{
     }
 }
 
-const fillingError = document.createElement("span")
+const fillingError: HTMLSpanElement = document.createElement("span")
 fillingError.innerText = "Чтобы добавить запись заполните все поля"
 fillingError.classList.add("filling-error")
 
 form.addEventListener('submit',(event) => checkForm(event))
 
-const table = document.createElement("table")
+// Таблица с записями
+
+const table: HTMLTableElement = document.createElement("table")
 addRow(table, ["Фамилия", "Имя", "Тема задания", "Статус"], "heading")
 addRow(table, ["Иванов", "Иван", "Структуры данных", "выполнено"])
 addRow(table, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"])
 
-const filterButton = document.createElement("button")
+const filterButton: HTMLButtonElement = document.createElement("button")
 filterButton.textContent = "Показать невыполненные задания"
 filterButton.classList.add("filter-button")
 
-function filterTable(filterButton: HTMLButtonElement): void{
+function filterTable(button: HTMLButtonElement): void{
     const completed = table.querySelectorAll(".row")
     completed.forEach(elem => {
         if(elem.classList.contains("row") && elem.lastChild?.textContent == "выполнено"){
@@ -117,13 +168,13 @@ function filterTable(filterButton: HTMLButtonElement): void{
         }        
     })
     
-    filterButton.textContent = filterButton.classList.contains("tasks-hidden") ? "Показать невыполненные задания" : "Показать все задания"
+    button.textContent = button.classList.contains("tasks-hidden") ? "Показать невыполненные задания" : "Показать все задания"
 
-    filterButton.classList.toggle("tasks-hidden")
+    button.classList.toggle("tasks-hidden")
 
 }
 
 filterButton.addEventListener("click", () => filterTable(filterButton))
 
-root.append(form, filterButton, table)
+root.append(accordion, form, filterButton, table)
 
