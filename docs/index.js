@@ -1,7 +1,34 @@
 "use strict";
-function selectLine(line) {
-    if (line.classList.contains("row")) {
-        line.classList.toggle("active");
+function openAccordion() {
+    accordion.classList.toggle("open-accordion");
+    if (accordion.classList.contains("open-accordion")) {
+        accordionSpan.textContent = "△";
+        accordion.append(accordionContent);
+    }
+    else {
+        accordionSpan.textContent = "▽";
+        accordionContent.remove();
+    }
+}
+function checkForm(event, table) {
+    event.preventDefault();
+    const lastNameInput = document.querySelector('#lastName');
+    const lastName = lastNameInput.value;
+    const nameInput = document.querySelector('#name');
+    const name = nameInput.value;
+    const taskInput = document.querySelector('#task');
+    const task = taskInput.value;
+    const statusInput = document.querySelector('#status');
+    const status = statusInput.value;
+    if (lastName.trim().length > 0 &&
+        name.trim().length > 0 &&
+        task.trim().length > 0) {
+        fillingError.remove();
+        addRow(table, [lastName, name, task, status]);
+        form.reset();
+    }
+    else {
+        formSubmit.append(fillingError);
     }
 }
 function addRow(table, array, name = "row") {
@@ -14,7 +41,57 @@ function addRow(table, array, name = "row") {
     }
     line.addEventListener("click", () => selectLine(line));
     line.addEventListener("dblclick", () => line.remove());
+    if (line.classList.contains("row")) {
+        const statusCell = line.lastElementChild;
+        statusCell.classList.add("status-cell");
+        const statusText = document.createElement("span");
+        statusText.textContent = statusCell.textContent;
+        statusText.classList.add("status-text");
+        if (statusText.textContent === "выполнено")
+            statusText.classList.add("task-done");
+        const iconEdit = document.createElement("span");
+        iconEdit.classList.add("icon-edit");
+        iconEdit.textContent = "✏️";
+        statusCell.innerHTML = "";
+        statusCell.append(statusText, iconEdit);
+        statusCell.addEventListener("click", (event) => {
+            event.stopPropagation();
+            editStatus(tasksTable, statusText, filterButton);
+        });
+    }
+    filterButton.textContent = "Показать невыполненные задания";
+    filterButton.classList.remove("tasks-hidden");
     table.append(line);
+    updateTable(table, filterButton);
+}
+function updateTable(table, button) {
+    const completed = table.querySelectorAll(".row");
+    completed.forEach(elem => {
+        let statusText = elem.querySelector(".status-text")?.textContent;
+        if (button.classList.contains("tasks-hidden")) {
+            if (statusText === "выполнено")
+                elem.classList.add("invisible");
+        }
+        else {
+            if (statusText === "выполнено")
+                elem.classList.remove("invisible");
+        }
+    });
+}
+function filterTable(table, button) {
+    button.classList.toggle("tasks-hidden");
+    button.textContent = button.classList.contains("tasks-hidden") ? "Показать все задания" : "Показать невыполненные задания";
+    updateTable(table, button);
+}
+function selectLine(line) {
+    if (line.classList.contains("row")) {
+        line.classList.toggle("active");
+    }
+}
+function editStatus(table, status, button) {
+    status.classList.toggle("task-done");
+    status.textContent = status.classList.contains("task-done") ? "выполнено" : "не выполнено";
+    updateTable(table, button);
 }
 const root = document.querySelector("#root");
 // Инструкция с аккордеоном
@@ -48,17 +125,6 @@ accordionContent.innerHTML = `
         <li>Когда на кнопке написано "Показать все задания" - при нажатии все скрытые записи возвращаются обратно в таблицу.</li>
     </ul>
 `;
-function openAccordion() {
-    accordion.classList.toggle("open-accordion");
-    if (accordion.classList.contains("open-accordion")) {
-        accordionSpan.textContent = "△";
-        accordion.append(accordionContent);
-    }
-    else {
-        accordionSpan.textContent = "▽";
-        accordionContent.remove();
-    }
-}
 accordion.addEventListener("click", () => openAccordion());
 // Форма для заполнения записи в таблице
 const form = document.createElement("form");
@@ -102,48 +168,17 @@ divSubmit.setAttribute("value", "Добавить");
 formSubmit.append(divSubmit);
 formSubmit.setAttribute("id", "form-submit");
 form.append(fieldStatus, formSubmit);
-function checkForm(event) {
-    event.preventDefault();
-    const lastNameInput = document.querySelector('#lastName');
-    const lastName = lastNameInput.value;
-    const nameInput = document.querySelector('#name');
-    const name = nameInput.value;
-    const taskInput = document.querySelector('#task');
-    const task = taskInput.value;
-    const statusInput = document.querySelector('#status');
-    const status = statusInput.value;
-    if (lastName.trim().length > 0 &&
-        name.trim().length > 0 &&
-        task.trim().length > 0) {
-        fillingError.remove();
-        addRow(table, [lastName, name, task, status]);
-        form.reset();
-    }
-    else {
-        formSubmit.append(fillingError);
-    }
-}
 const fillingError = document.createElement("span");
 fillingError.innerText = "Чтобы добавить запись заполните все поля";
 fillingError.classList.add("filling-error");
-form.addEventListener('submit', (event) => checkForm(event));
+form.addEventListener('submit', (event) => checkForm(event, tasksTable));
 // Таблица с записями
-const table = document.createElement("table");
-addRow(table, ["Фамилия", "Имя", "Тема задания", "Статус"], "heading");
-addRow(table, ["Иванов", "Иван", "Структуры данных", "выполнено"]);
-addRow(table, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"]);
 const filterButton = document.createElement("button");
 filterButton.textContent = "Показать невыполненные задания";
 filterButton.classList.add("filter-button");
-function filterTable(button) {
-    const completed = table.querySelectorAll(".row");
-    completed.forEach(elem => {
-        if (elem.classList.contains("row") && elem.lastChild?.textContent == "выполнено") {
-            elem.classList.toggle("invisible");
-        }
-    });
-    button.textContent = button.classList.contains("tasks-hidden") ? "Показать невыполненные задания" : "Показать все задания";
-    button.classList.toggle("tasks-hidden");
-}
-filterButton.addEventListener("click", () => filterTable(filterButton));
-root.append(accordion, form, filterButton, table);
+filterButton.addEventListener("click", () => filterTable(tasksTable, filterButton));
+const tasksTable = document.createElement("table");
+addRow(tasksTable, ["Фамилия", "Имя", "Тема задания", "Статус"], "heading");
+addRow(tasksTable, ["Иванов", "Иван", "Структуры данных", "выполнено"]);
+addRow(tasksTable, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"]);
+root.append(accordion, form, filterButton, tasksTable);

@@ -92,12 +92,13 @@ button {
   cursor: pointer;
 }
 
-table {
+table {  
   margin: 5px 0;
   border-collapse: collapse;
   border: 1px solid var(--border-color);
   text-align: left;
   width: 100%;
+  table-layout: fixed;
 }
 
 th {  
@@ -124,5 +125,15 @@ th {
 
 .invisible {
   display: none;
+}
+
+.status-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon-edit {
+  margin: 5px 20px;
 }
 
