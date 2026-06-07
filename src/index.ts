@@ -206,5 +206,9 @@ addRow(tasksTable, ["Фамилия", "Имя", "Тема задания", "Ст
 addRow(tasksTable, ["Иванов", "Иван", "Структуры данных", "выполнено"])
 addRow(tasksTable, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"])
 
-root.append(accordion, form, filterButton, tasksTable)
+const tableWrapper: HTMLDivElement = document.createElement("div");
+tableWrapper.className = "table-wrapper";
+tableWrapper.append(tasksTable);
+
+root.append(accordion, form, filterButton, tableWrapper)
 

@@ -181,4 +181,7 @@ const tasksTable = document.createElement("table");
 addRow(tasksTable, ["Фамилия", "Имя", "Тема задания", "Статус"], "heading");
 addRow(tasksTable, ["Иванов", "Иван", "Структуры данных", "выполнено"]);
 addRow(tasksTable, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"]);
-root.append(accordion, form, filterButton, tasksTable);
+const tableWrapper = document.createElement("div");
+tableWrapper.className = "table-wrapper";
+tableWrapper.append(tasksTable);
+root.append(accordion, form, filterButton, tableWrapper);

@@ -36,10 +36,9 @@ label {
 form {
   margin: 5px 0;
   padding: 10px 10px 5px;
-  /* border: 1px dashed gold; */
 }
 
-.field{
+.field, #form-submit{
   display: grid;
   grid-template-columns: 1fr 2fr 2fr;
   gap: 10px;
@@ -54,13 +53,6 @@ form {
 
 #status {
   padding: 3px;
-}
-
-#form-submit {
-  display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
-  gap: 10px;
-  margin: 10px 0;    
 }
 
 input{
@@ -90,6 +82,11 @@ button {
 
 .filter-button:hover {
   cursor: pointer;
+}
+
+.table-wrapper {
+  overflow-x: auto; /* горизонтальный скролл, если содержимое шире обёртки */
+  width: 100%;
 }
 
 table {  
@@ -131,9 +128,52 @@ th {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
+  gap: 10px;
+  white-space: nowrap;  /* запрещает перенос текста на новую строку */
 }
 
 .icon-edit {
-  margin: 5px 20px;
+  margin: 5px;
+}
+
+/* стили для телефона */
+@media (max-width: 768px) {  
+  .accordion {
+    font-size: 15px;
+    padding: 5px;
+  }
+  
+  .accordion-content {
+    font-size: 13px;
+  }
+
+  .field, #form-submit{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+  }  
+
+  table {
+    width: 100%;
+    min-width: 500px; /* при ширине меньше 500px появится скролл */
+    font-size: 15px;
+  }
+
+  .heading {
+    font-size: 16px;
+  }
+
+  .row {
+    font-size: 14px;  
+  }
+
+  .status-cell { 
+    gap: 5px;
+  }
+
+  .icon-edit {
+    margin: 0;
+  }
+
 }
 
