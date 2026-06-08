@@ -29,7 +29,6 @@ label {
 }
 
 .accordion-content {
-  margin-top: 20px;
   font-size: small;
 }
 
@@ -133,6 +132,10 @@ th {
   white-space: nowrap;  /* запрещает перенос текста на новую строку */
 }
 
+.task-done {
+  color: green;
+}
+
 .icon-edit {
   margin: 5px;
 }
@@ -169,7 +172,7 @@ th {
 
   .status-cell { 
     gap: 5px;
-  }
+  }  
 
   .icon-edit {
     margin: 0;

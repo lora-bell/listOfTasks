@@ -1,4 +1,4 @@
-"use strict";
+import { TaskStatusEnum } from "./constants.js";
 function openAccordion() {
     accordion.classList.toggle("open-accordion");
     if (accordion.classList.contains("open-accordion")) {
@@ -37,28 +37,28 @@ function addRow(table, array, name = "row") {
     for (const elem of array) {
         const cell = document.createElement("th");
         cell.textContent = elem;
+        const statusStrings = allStatuses.map(s => String(s));
+        if (statusStrings.includes(elem)) {
+            cell.classList.add("status-cell");
+            const statusText = document.createElement("span");
+            statusText.textContent = cell.textContent;
+            statusText.classList.add("status-text");
+            if (statusText.textContent === TaskStatusEnum.DONE)
+                statusText.classList.add("task-done");
+            const iconEdit = document.createElement("span");
+            iconEdit.classList.add("icon-edit");
+            iconEdit.textContent = "✏️";
+            cell.innerHTML = "";
+            cell.append(statusText, iconEdit);
+            cell.addEventListener("click", (event) => {
+                event.stopPropagation();
+                editStatus(tasksTable, statusText, allStatuses, filterButton);
+            });
+        }
         line.append(cell);
     }
     line.addEventListener("click", () => selectLine(line));
     line.addEventListener("dblclick", () => line.remove());
-    if (line.classList.contains("row")) {
-        const statusCell = line.lastElementChild;
-        statusCell.classList.add("status-cell");
-        const statusText = document.createElement("span");
-        statusText.textContent = statusCell.textContent;
-        statusText.classList.add("status-text");
-        if (statusText.textContent === "выполнено")
-            statusText.classList.add("task-done");
-        const iconEdit = document.createElement("span");
-        iconEdit.classList.add("icon-edit");
-        iconEdit.textContent = "✏️";
-        statusCell.innerHTML = "";
-        statusCell.append(statusText, iconEdit);
-        statusCell.addEventListener("click", (event) => {
-            event.stopPropagation();
-            editStatus(tasksTable, statusText, filterButton);
-        });
-    }
     filterButton.textContent = "Показать невыполненные задания";
     filterButton.classList.remove("tasks-hidden");
     table.append(line);
@@ -67,14 +67,19 @@ function addRow(table, array, name = "row") {
 function updateTable(table, button) {
     const completed = table.querySelectorAll(".row");
     completed.forEach(elem => {
-        let statusText = elem.querySelector(".status-text")?.textContent;
-        if (button.classList.contains("tasks-hidden")) {
-            if (statusText === "выполнено")
+        let statusText = elem.querySelector(".status-text");
+        if (statusText.textContent === TaskStatusEnum.DONE) {
+            statusText.classList.add("task-done");
+            if (button.classList.contains("tasks-hidden")) {
                 elem.classList.add("invisible");
+            }
+            else {
+                elem.classList.remove("invisible");
+            }
         }
         else {
-            if (statusText === "выполнено")
-                elem.classList.remove("invisible");
+            statusText.classList.remove("task-done");
+            elem.classList.remove("invisible");
         }
     });
 }
@@ -88,12 +93,32 @@ function selectLine(line) {
         line.classList.toggle("active");
     }
 }
-function editStatus(table, status, button) {
-    status.classList.toggle("task-done");
-    status.textContent = status.classList.contains("task-done") ? "выполнено" : "не выполнено";
-    updateTable(table, button);
+function editStatus(table, status, statuses, button) {
+    const statusCell = status.closest(".status-cell");
+    if (statusCell.querySelector("select"))
+        return;
+    const statusChoice = document.createElement("select");
+    statusChoice.size = 4;
+    for (const item of statuses) {
+        const option = document.createElement("option");
+        option.textContent = item;
+        if (item === status.textContent)
+            option.selected = true;
+        statusChoice.append(option);
+    }
+    statusCell.prepend(statusChoice);
+    status.style.display = "none";
+    statusChoice.addEventListener("change", (event) => {
+        event.stopPropagation();
+        status.classList.remove("task-done");
+        status.textContent = event.target.value;
+        status.style.display = "";
+        statusChoice.remove();
+        updateTable(table, button);
+    });
 }
 const root = document.querySelector("#root");
+const allStatuses = Object.values(TaskStatusEnum);
 // Инструкция с аккордеоном
 const accordion = document.createElement("div");
 accordion.classList.add("accordion");
@@ -108,6 +133,7 @@ accordion.append(accordionHeader);
 const accordionContent = document.createElement("div");
 accordionContent.classList.add("accordion-content");
 accordionContent.innerHTML = `
+    <hr/>
     <h3>Добавление записей (Create)</h3>
     <p>При заполнении всех полей и нажатии кнопки "Добавить" - новая строка появляется в таблице.</p>
     <p>Если поля не заполнены - показывается сообщение об ошибке: "Чтобы добавить запись заполните все поля".</p>
@@ -116,13 +142,14 @@ accordionContent.innerHTML = `
     <p>Все добавленные записи отображаются в таблице.</p>
     <p>Строки можно фильтровать с помощью кнопки:</p>
     <ul>
-        <li><strong>"Показать невыполненные задания"</strong> — скрываются записи с выполненными заданиями, текст кнопки меняется на <strong>"Показать все задания"</strong>.</li>
+        <li><strong>"Показать невыполненные задания"</strong> — скрываются записи со статусом <strong>готово</strong>, текст кнопки меняется на <strong>"Показать все задания"</strong>.</li>
         <li><strong>"Показать все задания"</strong> — все скрытые записи возвращаются, текст кнопки меняется обратно.</li>
     </ul>
 
     <h3>Редактирование записей (Update)</h3>
-    <p>Ячейка <strong>"Статус"</strong> содержит текст (выполнено/не выполнено) и иконку карандаша ✏️.</p>
-    <p>При клике на ячейку статус переключается: <strong>выполнено</strong> ↔ <strong>не выполнено</strong>.</p>
+    <p>Ячейка <strong>"Статус"</strong> содержит текст и иконку карандаша ✏️.</p>
+    <p>При клике на ячейку появляется выпадающий список со статусами: <strong>новая</strong>, <strong>проверка</strong>, <strong>доработка</strong>, <strong>готово</strong>.</p>
+    <p>После выбора статус обновляется, строка с <strong>готово</strong> выделяется зелёным цветом.</p>
 
     <h3>Удаление записей (Delete)</h3>
     <p>При двойном клике по строке запись удаляется из таблицы.</p>
@@ -133,6 +160,7 @@ accordionContent.innerHTML = `
 
     <h3>Адаптивная вёрстка</h3>
     <p>При необходимости таблица получает горизонтальную полосу прокрутки.</p>
+    <p>На мобильных устройствах форма адаптируется под размер экрана.</p>
 `;
 accordion.addEventListener("click", () => openAccordion());
 // Форма для заполнения записи в таблице
@@ -159,7 +187,7 @@ const formStatus = document.createElement("select");
 formStatus.setAttribute("type", "text");
 formStatus.setAttribute("name", "status");
 formStatus.setAttribute("id", "status");
-for (const item of ["выполнено", "не выполнено"]) {
+for (const item of allStatuses) {
     const option = document.createElement("option");
     option.textContent = item;
     formStatus.append(option);
@@ -188,8 +216,9 @@ filterButton.classList.add("filter-button");
 filterButton.addEventListener("click", () => filterTable(tasksTable, filterButton));
 const tasksTable = document.createElement("table");
 addRow(tasksTable, ["Фамилия", "Имя", "Тема задания", "Статус"], "heading");
-addRow(tasksTable, ["Иванов", "Иван", "Структуры данных", "выполнено"]);
-addRow(tasksTable, ["Кузнецов", "Александр", "Алгоритмы", "не выполнено"]);
+addRow(tasksTable, ["Иванов", "Иван", "Структуры данных", TaskStatusEnum.DONE]);
+addRow(tasksTable, ["Кузнецов", "Александр", "Алгоритмы", TaskStatusEnum.NEW]);
+addRow(tasksTable, ["Петрова", "Мария", "Стилизация", TaskStatusEnum.REVIEW]);
 const tableWrapper = document.createElement("div");
 tableWrapper.className = "table-wrapper";
 tableWrapper.append(tasksTable);
